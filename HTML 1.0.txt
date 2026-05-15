@@ -1,0 +1,1101 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+
+// ============================================================
+// DATA TEKS & SOAL (dari instrumen penelitian ABBIS v3)
+// ============================================================
+const READING_TEXT = {
+  title: "KRISIS AIR BERSIH DI BALIK PERUBAHAN IKLIM GLOBAL",
+  paragraphs: [
+    "Perubahan iklim bukan lagi sekadar isu masa depan yang abstrak. Dampaknya telah terasa secara nyata di berbagai penjuru dunia, termasuk di Indonesia. Salah satu dampak yang paling mengancam kehidupan manusia namun sering kali luput dari perhatian adalah krisis air bersih. Ketika suhu bumi terus meningkat dan pola curah hujan berubah secara drastis, ketersediaan air bersih yang selama ini dianggap tidak terbatas mulai menunjukkan tanda-tanda kepunahan.",
+    "Para ilmuwan menjelaskan bahwa perubahan iklim memengaruhi siklus air di bumi melalui beberapa mekanisme sekaligus. Pertama, peningkatan suhu rata-rata permukaan bumi mempercepat proses penguapan air dari danau, sungai, dan tanah. Air yang menguap lebih cepat dari biasanya menyebabkan permukaan air tanah turun dan cadangan air di waduk berkurang. Kedua, perubahan pola curah hujan membuat sebagian wilayah mengalami kekeringan berkepanjangan, sementara wilayah lain justru diterjang banjir yang tidak dapat diserap tanah karena intensitasnya terlalu tinggi dalam waktu singkat.",
+    "Fenomena mencairnya lapisan es dan gletser di kutub serta pegunungan tinggi juga memberikan kontribusi ganda terhadap krisis air. Dalam jangka pendek, pencairan es memang menambah volume air di sungai-sungai yang bersumber dari gletser. Namun dalam jangka panjang, ketika gletser habis meleleh, sumber air permanen tersebut akan lenyap selamanya. Lebih dari dua miliar orang di dunia bergantung pada air dari gletser dan salju pegunungan sebagai sumber utama air minum dan irigasi pertanian mereka.",
+    "Di Indonesia, dampak perubahan iklim terhadap ketersediaan air bersih sudah mulai terasa di beberapa daerah. Penelitian yang dilakukan oleh Badan Meteorologi, Klimatologi, dan Geofisika (BMKG) menunjukkan bahwa musim kemarau di Indonesia cenderung semakin panjang dan intensitas curah hujan pada musim penghujan semakin tidak merata. Wilayah seperti Nusa Tenggara Timur (NTT) dan sebagian Jawa Tengah telah mengalami kekeringan parah yang memaksa warga berjalan bermil-mil untuk mendapatkan air bersih. Di sisi lain, Jakarta dan kota-kota pesisir lainnya menghadapi ancaman intrusi air laut yang merembes ke dalam sumur-sumur penduduk akibat penurunan permukaan tanah dan naiknya permukaan laut.",
+    "Kualitas air pun tidak luput dari dampak perubahan iklim. Suhu air yang lebih hangat memicu pertumbuhan alga berbahaya secara masif dalam fenomena yang dikenal sebagai harmful algal bloom. Alga ini menghasilkan racun yang berbahaya bagi manusia dan hewan, serta menghabiskan kadar oksigen terlarut sehingga membunuh ikan dan organisme air lainnya. Banjir yang semakin sering terjadi juga membawa sedimen, pestisida, dan limbah industri ke sumber-sumber air minum, meningkatkan risiko penyebaran penyakit seperti kolera, diare, dan tifus.",
+    "Para ahli lingkungan menekankan bahwa krisis air bersih dan perubahan iklim adalah dua sisi dari mata uang yang sama. Mengatasi satu masalah tanpa menyelesaikan yang lain tidak akan memberikan solusi yang berkelanjutan. Oleh karena itu, berbagai negara mulai mengembangkan strategi adaptasi ganda, yaitu mengurangi emisi gas rumah kaca sebagai akar penyebab perubahan iklim sekaligus membangun sistem pengelolaan air yang lebih tangguh dan efisien.",
+    "Di tingkat global, beberapa solusi inovatif telah mulai diterapkan. Teknologi pemanenan air hujan memungkinkan rumah tangga dan komunitas menyimpan air hujan untuk digunakan di musim kering. Sistem desalinasi, yaitu proses mengubah air laut menjadi air tawar, semakin berkembang meski masih membutuhkan energi yang besar. Sementara itu, pendekatan berbasis alam seperti restorasi hutan, pembangunan lahan basah buatan, dan pelestarian daerah aliran sungai (DAS) terbukti efektif dalam menjaga kapasitas penyerapan air tanah secara alami.",
+    "Namun solusi teknis saja tidak cukup. Perubahan perilaku dan kesadaran masyarakat memainkan peran yang sama pentingnya. Penggunaan air yang boros, pencemaran sungai oleh sampah dan limbah, serta alih fungsi lahan yang menghancurkan kawasan resapan air adalah masalah yang berakar pada perilaku manusia dan hanya bisa diselesaikan melalui pendidikan, regulasi, dan perubahan budaya secara menyeluruh.",
+    "Krisis air bersih akibat perubahan iklim adalah peringatan keras bahwa sumber daya alam bumi memiliki batas. Air yang selama ini mengalir dari keran rumah kita bukan jaminan abadi, melainkan hasil dari keseimbangan ekologis yang rapuh dan terus terancam. Memahami ancaman ini bukan untuk menimbulkan kepanikan, tetapi untuk mendorong tindakan nyata, baik dari pemerintah, industri, maupun setiap individu, sebelum krisis berubah menjadi bencana yang tidak dapat dibalikan.",
+  ],
+};
+
+const QUESTIONS_C = [
+  // C.1 Surface Code
+  {
+    id: 1, section: "C.1", label: "Pemahaman Harfiah (Surface Code)",
+    text: "Menurut teks, proses apa yang dipercepat oleh peningkatan suhu rata-rata permukaan bumi?",
+    options: ["Pertumbuhan alga berbahaya", "Proses penguapan air dari danau, sungai, dan tanah", "Pencairan lapisan es di kutub", "Penurunan permukaan tanah di kota pesisir"],
+    answer: 1,
+  },
+  {
+    id: 2, section: "C.1", label: "Pemahaman Harfiah (Surface Code)",
+    text: "Apa yang dimaksud dengan \"harmful algal bloom\" dalam teks?",
+    options: ["Banjir yang membawa sedimen berbahaya", "Pertumbuhan ikan secara masif di air hangat", "Pertumbuhan alga berbahaya secara masif akibat suhu air yang lebih hangat", "Pencemaran air oleh limbah industri"],
+    answer: 2,
+  },
+  {
+    id: 3, section: "C.1", label: "Pemahaman Harfiah (Surface Code)",
+    text: "Menurut teks, berapa banyak orang di dunia yang bergantung pada air dari gletser dan salju pegunungan?",
+    options: ["Lebih dari satu miliar orang", "Lebih dari dua miliar orang", "Lebih dari tiga miliar orang", "Kurang dari satu miliar orang"],
+    answer: 1,
+  },
+  {
+    id: 4, section: "C.1", label: "Pemahaman Harfiah (Surface Code)",
+    text: "Lembaga mana yang disebutkan dalam teks telah melakukan penelitian tentang dampak perubahan iklim terhadap ketersediaan air di Indonesia?",
+    options: ["Kementerian Lingkungan Hidup", "LIPI (Lembaga Ilmu Pengetahuan Indonesia)", "BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)", "Bappenas"],
+    answer: 2,
+  },
+  {
+    id: 5, section: "C.1", label: "Pemahaman Harfiah (Surface Code)",
+    text: "Penyakit apa saja yang disebutkan dalam teks sebagai risiko akibat banjir yang membawa limbah ke sumber air minum?",
+    options: ["Malaria, demam berdarah, dan diare", "Kolera, diare, dan tifus", "Disentri, kolera, dan malaria", "Tifus, hepatitis, dan disentri"],
+    answer: 1,
+  },
+  // C.2 Textbase
+  {
+    id: 6, section: "C.2", label: "Pemahaman Ide Pokok (Textbase)",
+    text: "Apa gagasan utama paragraf kedua dalam teks?",
+    options: ["Perubahan iklim menyebabkan banjir dan kekeringan secara bersamaan", "Mekanisme bagaimana perubahan iklim memengaruhi siklus air di bumi", "Pentingnya teknologi dalam mengatasi kekurangan air", "Dampak penguapan air terhadap pertanian"],
+    answer: 1,
+  },
+  {
+    id: 7, section: "C.2", label: "Pemahaman Ide Pokok (Textbase)",
+    text: "Manakah pernyataan yang paling tepat merangkum isi paragraf tentang gletser?",
+    options: ["Pencairan gletser hanya berdampak negatif bagi masyarakat dunia", "Gletser mencair memberi manfaat jangka pendek namun mengancam pasokan air jangka panjang", "Gletser adalah sumber air utama bagi seluruh penduduk dunia", "Pencairan gletser tidak berkaitan langsung dengan perubahan iklim"],
+    answer: 1,
+  },
+  {
+    id: 8, section: "C.2", label: "Pemahaman Ide Pokok (Textbase)",
+    text: "Apa tema utama yang menghubungkan seluruh isi teks?",
+    options: ["Teknologi desalinasi sebagai solusi krisis air", "Peran Indonesia dalam mengatasi perubahan iklim global", "Hubungan antara perubahan iklim dan ancaman terhadap ketersediaan air bersih", "Pentingnya kesadaran individu dalam menjaga lingkungan"],
+    answer: 2,
+  },
+  {
+    id: 9, section: "C.2", label: "Pemahaman Ide Pokok (Textbase)",
+    text: "Dalam teks, apa yang dimaksud penulis dengan \"strategi adaptasi ganda\"?",
+    options: ["Menggunakan dua jenis teknologi pengelolaan air secara bersamaan", "Mengurangi emisi gas rumah kaca sekaligus membangun pengelolaan air yang lebih tangguh", "Membangun sistem banjir dan kekeringan secara bersamaan", "Melibatkan dua negara dalam kerja sama lingkungan"],
+    answer: 1,
+  },
+  {
+    id: 10, section: "C.2", label: "Pemahaman Ide Pokok (Textbase)",
+    text: "Bagaimana hubungan antara paragraf tentang \"kualitas air\" dengan paragraf sebelumnya tentang \"ketersediaan air\"?",
+    options: ["Keduanya membahas masalah yang tidak berkaitan", "Paragraf kualitas air membantah argumen paragraf ketersediaan air", "Paragraf kualitas air memperluas dampak perubahan iklim yang tidak hanya menyangkut jumlah, tetapi juga mutu air", "Keduanya membahas solusi yang sama terhadap krisis air"],
+    answer: 2,
+  },
+  // C.3 Situation Model
+  {
+    id: 11, section: "C.3", label: "Pemahaman Inferensial (Situation Model)",
+    text: "Mengapa penulis menyebut krisis air bersih dan perubahan iklim sebagai \"dua sisi dari mata uang yang sama\"?",
+    options: ["Karena keduanya sama-sama mahal untuk diatasi", "Karena keduanya disebabkan oleh faktor manusia yang sama dan hanya bisa diselesaikan secara bersamaan", "Karena keduanya terjadi di negara yang sama", "Karena keduanya baru muncul dalam beberapa dekade terakhir"],
+    answer: 1,
+  },
+  {
+    id: 12, section: "C.3", label: "Pemahaman Inferensial (Situation Model)",
+    text: "Berdasarkan teks, mengapa solusi teknis saja dinilai tidak cukup untuk mengatasi krisis air?",
+    options: ["Karena teknologi yang ada belum cukup canggih", "Karena masalah perilaku manusia seperti penggunaan air boros dan pencemaran tidak dapat diselesaikan hanya dengan teknologi", "Karena biaya teknologi terlalu mahal bagi negara berkembang", "Karena pemerintah tidak mendukung penerapan teknologi baru"],
+    answer: 1,
+  },
+  {
+    id: 13, section: "C.3", label: "Pemahaman Inferensial (Situation Model)",
+    text: "Jika gletser di seluruh dunia habis meleleh dalam 50 tahun ke depan, apa yang paling mungkin terjadi berdasarkan informasi dalam teks?",
+    options: ["Volume air laut akan berkurang drastis", "Lebih dari dua miliar orang akan kehilangan sumber air utama mereka", "Proses penguapan akan melambat karena tidak ada sumber air", "Alga berbahaya akan berkurang karena suhu air lebih dingin"],
+    answer: 1,
+  },
+  {
+    id: 14, section: "C.3", label: "Pemahaman Inferensial (Situation Model)",
+    text: "Mengapa pendekatan berbasis alam seperti restorasi hutan disebut efektif untuk mengatasi krisis air?",
+    options: ["Karena hutan menghasilkan air hujan secara langsung", "Karena hutan menjaga kapasitas penyerapan air tanah secara alami sehingga air tersimpan lebih lama", "Karena hutan mendinginkan suhu bumi sehingga mencegah penguapan", "Karena hutan menghalangi banjir dengan cara menyerap seluruh curah hujan"],
+    answer: 1,
+  },
+  {
+    id: 15, section: "C.3", label: "Pemahaman Inferensial (Situation Model)",
+    text: "Apa yang dapat disimpulkan tentang sikap penulis terhadap isu krisis air dalam teks ini?",
+    options: ["Penulis pesimis dan menyatakan bahwa krisis air tidak dapat diatasi", "Penulis netral dan hanya menyajikan fakta tanpa rekomendasi", "Penulis optimis berlebihan dan menganggap teknologi bisa menyelesaikan segalanya", "Penulis bersikap realistis dan mendorong tindakan nyata tanpa menimbulkan kepanikan"],
+    answer: 3,
+  },
+];
+
+const QUESTIONS_D = [
+  { id: 16, text: "Di paragraf mana teks pertama kali menjelaskan bahwa peningkatan suhu bumi mempercepat proses penguapan air dari danau, sungai, dan tanah?", options: ["Paragraf 1", "Paragraf 2", "Paragraf 3", "Paragraf 4"], answer: 1 },
+  { id: 17, text: "Di paragraf mana teks pertama kali menyebutkan bahwa pencairan gletser memberikan dampak ganda: manfaat jangka pendek dan ancaman jangka panjang?", options: ["Paragraf 2", "Paragraf 3", "Paragraf 4", "Paragraf 5"], answer: 1 },
+  { id: 18, text: "Di paragraf mana teks pertama kali menyebut lebih dari dua miliar orang di dunia bergantung pada air dari gletser dan salju pegunungan?", options: ["Paragraf 2", "Paragraf 3", "Paragraf 4", "Paragraf 5"], answer: 1 },
+  { id: 19, text: "Di paragraf mana teks pertama kali menyebut nama wilayah NTT (Nusa Tenggara Timur) dan Jawa Tengah sebagai daerah yang mengalami kekeringan parah?", options: ["Paragraf 2", "Paragraf 3", "Paragraf 4", "Paragraf 5"], answer: 2 },
+  { id: 20, text: "Di paragraf mana teks pertama kali menjelaskan fenomena harmful algal bloom sebagai akibat dari suhu air yang lebih hangat?", options: ["Paragraf 3", "Paragraf 4", "Paragraf 5", "Paragraf 6"], answer: 2 },
+  { id: 21, text: "Di paragraf mana teks pertama kali menyatakan bahwa krisis air bersih dan perubahan iklim adalah \"dua sisi dari mata uang yang sama\"?", options: ["Paragraf 4", "Paragraf 5", "Paragraf 6", "Paragraf 7"], answer: 2 },
+  { id: 22, text: "Di paragraf mana teks pertama kali menyebutkan teknologi desalinasi sebagai salah satu solusi inovatif yang sedang berkembang?", options: ["Paragraf 5", "Paragraf 6", "Paragraf 7", "Paragraf 8"], answer: 2 },
+  { id: 23, text: "Di paragraf mana teks pertama kali menegaskan bahwa perubahan perilaku dan kesadaran masyarakat memainkan peran yang sama pentingnya dengan solusi teknis?", options: ["Paragraf 6", "Paragraf 7", "Paragraf 8", "Paragraf 9"], answer: 2 },
+];
+
+const SCALE_E = [
+  { id: "E1", text: "Saya dapat berkonsentrasi penuh dari awal hingga akhir membaca teks ini.", reversed: false },
+  { id: "E2", text: "Saya merasa proses membaca teks ini membutuhkan usaha mental yang besar.", reversed: true },
+  { id: "E3", text: "Saya sering merasa pikiran saya teralihkan ke hal lain saat membaca.", reversed: true },
+  { id: "E4", text: "Saya merasa lelah secara mental setelah selesai membaca teks ini.", reversed: true },
+  { id: "E5", text: "Saya merasa perlu membaca ulang beberapa bagian karena gagal memahaminya.", reversed: true },
+  { id: "E6", text: "Saya merasa media yang saya gunakan memudahkan proses membaca.", reversed: false },
+  { id: "E7", text: "Saya merasa penggunaan media ini menguras energi saya secara tidak perlu.", reversed: true },
+  { id: "E8", text: "Saya merasa mata saya terasa lelah atau tidak nyaman setelah membaca.", reversed: true },
+  { id: "E9", text: "Saya dapat memproses informasi dalam teks tanpa harus berhenti lama di suatu bagian.", reversed: false },
+  { id: "E10", text: "Saya merasa cara penyajian teks di media yang saya gunakan menambah beban pikiran.", reversed: true },
+];
+
+const SCALE_F = [
+  { id: "F1", text: "Saya dapat mengingat kira-kira di bagian mana (awal/tengah/akhir) suatu informasi penting berada dalam teks.", reversed: false },
+  { id: "F2", text: "Saya merasa sulit untuk mengingat posisi/lokasi informasi tertentu dalam teks yang sudah saya baca.", reversed: true },
+  { id: "F3", text: "Saya memiliki gambaran mental yang jelas tentang bagaimana isi teks tersusun dari awal hingga akhir.", reversed: false },
+  { id: "F4", text: "Saya merasa mudah \"kembali\" secara mental ke bagian tertentu dalam teks untuk mengingat ulang isinya.", reversed: false },
+  { id: "F5", text: "Saya kesulitan membayangkan struktur atau urutan informasi dalam teks setelah selesai membaca.", reversed: true },
+  { id: "F6", text: "Saya merasa ada \"peta\" dalam pikiran saya tentang di mana setiap informasi penting berada dalam teks.", reversed: false },
+  { id: "F7", text: "Saya merasa informasi dalam teks terasa \"mengalir\" tanpa batas sehingga sulit saya petakan letaknya.", reversed: true },
+  { id: "F8", text: "Saya dapat dengan mudah mengingat urutan kejadian atau argumen yang disampaikan penulis dalam teks.", reversed: false },
+];
+
+const SCALE_G = [
+  { id: "G1", text: "Secara keseluruhan, saya menikmati proses membaca teks ini." },
+  { id: "G2", text: "Saya merasa media yang saya gunakan mendukung pemahaman saya terhadap teks." },
+  { id: "G3", text: "Saya merasa nyaman membaca dengan media ini dalam waktu yang lama." },
+  { id: "G4", text: "Saya merasa puas dengan kualitas pemahaman yang saya capai setelah membaca teks ini." },
+  { id: "G5", text: "Saya lebih suka menggunakan media ini dibandingkan media lainnya untuk membaca teks panjang." },
+  { id: "G6", text: "Jika diberikan pilihan, saya akan memilih media yang sama untuk membaca materi pelajaran." },
+];
+
+const ADMIN_PASSWORD = "ABBIS2025";
+const QUIZ_TIME_SECONDS = 30 * 60; // 30 minutes
+
+// ============================================================
+// STORAGE HELPERS
+// ============================================================
+const STORAGE_KEY = "abbis-responses";
+
+async function loadResponses() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true);
+    return result ? JSON.parse(result.value) : [];
+  } catch { return []; }
+}
+
+async function saveResponse(resp) {
+  try {
+    const existing = await loadResponses();
+    existing.push(resp);
+    await window.storage.set(STORAGE_KEY, JSON.stringify(existing), true);
+    return true;
+  } catch { return false; }
+}
+
+async function deleteResponse(id) {
+  try {
+    const existing = await loadResponses();
+    const filtered = existing.filter(r => r.id !== id);
+    await window.storage.set(STORAGE_KEY, JSON.stringify(filtered), true);
+    return true;
+  } catch { return false; }
+}
+
+// ============================================================
+// SCORE CALCULATION
+// ============================================================
+function calcScore(answers) {
+  let c1 = 0, c2 = 0, c3 = 0, d = 0;
+  QUESTIONS_C.forEach((q, i) => {
+    const key = `C${q.id}`;
+    if (answers[key] === q.answer) {
+      if (i < 5) c1++;
+      else if (i < 10) c2++;
+      else c3++;
+    }
+  });
+  QUESTIONS_D.forEach(q => {
+    if (answers[`D${q.id}`] === q.answer) d++;
+  });
+  return { c1, c2, c3, totalC: c1 + c2 + c3, d };
+}
+
+// ============================================================
+// CSS
+// ============================================================
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f0ebe3; color: #1a1a18; min-height: 100vh; }
+  .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* HEADER */
+  .header { background: #1a3a2a; color: #e8dfc8; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .header-title { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.02em; }
+  .header-sub { font-size: 0.75rem; opacity: 0.65; margin-top: 2px; }
+  .header-badge { background: #2d6a4f; color: #b7e4c7; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; letter-spacing: 0.05em; }
+
+  /* LANDING */
+  .landing { max-width: 680px; margin: 0 auto; padding: 60px 24px; text-align: center; }
+  .landing-icon { font-size: 3rem; margin-bottom: 16px; }
+  .landing h1 { font-family: 'Lora', serif; font-size: 2rem; color: #1a3a2a; margin-bottom: 12px; line-height: 1.3; }
+  .landing p { color: #555; line-height: 1.7; margin-bottom: 32px; font-size: 0.95rem; }
+  .media-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  .media-card { background: white; border-radius: 16px; padding: 28px 20px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .media-card:hover { border-color: #2d6a4f; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,106,79,0.15); }
+  .media-card.selected { border-color: #2d6a4f; background: #f0f7f4; }
+  .media-card-icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .media-card h3 { font-family: 'Lora', serif; font-size: 1.05rem; margin-bottom: 6px; color: #1a3a2a; }
+  .media-card p { font-size: 0.78rem; color: #666; line-height: 1.5; }
+  .btn { background: #1a3a2a; color: #e8dfc8; border: none; padding: 14px 32px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; }
+  .btn:hover { background: #2d6a4f; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-outline { background: transparent; color: #1a3a2a; border: 2px solid #1a3a2a; }
+  .btn-outline:hover { background: #1a3a2a; color: #e8dfc8; }
+  .btn-danger { background: #c0392b; color: white; }
+  .btn-danger:hover { background: #a93226; }
+  .btn-sm { padding: 8px 18px; font-size: 0.82rem; }
+  .admin-link { color: #2d6a4f; text-decoration: underline; cursor: pointer; font-size: 0.82rem; margin-top: 24px; display: block; }
+
+  /* FORM DATA DIRI */
+  .form-page { max-width: 560px; margin: 0 auto; padding: 48px 24px; }
+  .form-page h2 { font-family: 'Lora', serif; font-size: 1.5rem; color: #1a3a2a; margin-bottom: 6px; }
+  .form-page .subtitle { color: #666; font-size: 0.85rem; margin-bottom: 32px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: #333; margin-bottom: 6px; letter-spacing: 0.03em; text-transform: uppercase; }
+  .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1.5px solid #d0c9be; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; background: white; color: #1a1a18; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a4f; }
+  .radio-group { display: flex; gap: 12px; }
+  .radio-btn { flex: 1; border: 1.5px solid #d0c9be; border-radius: 8px; padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.88rem; background: white; transition: all 0.2s; }
+  .radio-btn.active { border-color: #2d6a4f; background: #f0f7f4; color: #1a3a2a; font-weight: 600; }
+
+  /* READING PAGE */
+  .reading-page { max-width: 760px; margin: 0 auto; padding: 40px 24px 60px; }
+  .reading-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid #d0c9be; }
+  .reading-badge { background: #e8f5e9; color: #2d6a4f; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+  .reading-title { font-family: 'Lora', serif; font-size: 1.5rem; color: #1a3a2a; margin-bottom: 24px; text-align: center; }
+  .reading-body { background: white; border-radius: 16px; padding: 36px 40px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+  .paragraph { line-height: 1.85; margin-bottom: 18px; font-size: 0.97rem; color: #2a2a28; text-align: justify; }
+  .paragraph:last-child { margin-bottom: 0; }
+  .para-num { display: inline-block; width: 22px; height: 22px; background: #1a3a2a; color: white; border-radius: 50%; font-size: 0.7rem; font-weight: 700; text-align: center; line-height: 22px; margin-right: 8px; flex-shrink: 0; }
+  .para-wrapper { display: flex; align-items: flex-start; margin-bottom: 18px; }
+  .para-text { flex: 1; line-height: 1.85; font-size: 0.97rem; color: #2a2a28; text-align: justify; }
+  .reading-done-btn { display: block; margin: 32px auto 0; }
+  .reading-note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px 16px; font-size: 0.82rem; color: #7a5c00; margin-bottom: 20px; }
+
+  /* PRINT INFO PAGE */
+  .print-page { max-width: 580px; margin: 0 auto; padding: 60px 24px; text-align: center; }
+  .print-page .icon { font-size: 3.5rem; margin-bottom: 20px; }
+  .print-page h2 { font-family: 'Lora', serif; font-size: 1.6rem; color: #1a3a2a; margin-bottom: 12px; }
+  .print-page p { color: #555; line-height: 1.7; margin-bottom: 20px; font-size: 0.93rem; }
+  .countdown-box { background: #1a3a2a; color: #b7e4c7; border-radius: 12px; padding: 20px; font-family: 'Lora', serif; font-size: 2.2rem; font-weight: 700; margin: 24px 0; letter-spacing: 0.1em; }
+  .countdown-label { font-size: 0.75rem; opacity: 0.7; margin-bottom: 6px; font-family: 'DM Sans', sans-serif; font-weight: 400; letter-spacing: 0.05em; }
+
+  /* QUIZ */
+  .quiz-page { max-width: 700px; margin: 0 auto; padding: 32px 24px 60px; }
+  .quiz-timer { background: #1a3a2a; color: #e8dfc8; border-radius: 10px; padding: 10px 18px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 600; margin-bottom: 24px; }
+  .timer-urgent { background: #c0392b !important; }
+  .quiz-progress { background: #d0c9be; border-radius: 4px; height: 4px; margin-bottom: 28px; overflow: hidden; }
+  .quiz-progress-bar { background: #2d6a4f; height: 100%; transition: width 0.3s; }
+  .section-header { font-family: 'Lora', serif; font-size: 1.05rem; color: #1a3a2a; margin-bottom: 4px; font-weight: 600; }
+  .section-sub { font-size: 0.75rem; color: #888; margin-bottom: 20px; }
+  .question-card { background: white; border-radius: 14px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .question-num { font-size: 0.72rem; font-weight: 700; color: #2d6a4f; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; }
+  .question-text { font-size: 0.95rem; line-height: 1.65; color: #1a1a18; margin-bottom: 16px; font-weight: 500; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1.5px solid #e0dbd3; border-radius: 8px; cursor: pointer; transition: all 0.15s; font-size: 0.88rem; }
+  .option:hover { border-color: #2d6a4f; background: #f5faf7; }
+  .option.selected { border-color: #2d6a4f; background: #edf7f1; }
+  .option-letter { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #bbb; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+  .option.selected .option-letter { background: #2d6a4f; border-color: #2d6a4f; color: white; }
+
+  /* LIKERT */
+  .likert-card { background: white; border-radius: 14px; padding: 20px 24px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .likert-text { font-size: 0.9rem; line-height: 1.55; margin-bottom: 14px; color: #1a1a18; }
+  .likert-scale { display: flex; gap: 8px; align-items: center; }
+  .likert-label { font-size: 0.7rem; color: #888; min-width: 30px; text-align: center; }
+  .likert-options { display: flex; gap: 6px; flex: 1; justify-content: center; }
+  .likert-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #d0c9be; background: white; cursor: pointer; font-size: 0.78rem; font-weight: 600; color: #666; transition: all 0.15s; }
+  .likert-btn:hover { border-color: #2d6a4f; color: #2d6a4f; }
+  .likert-btn.selected { background: #1a3a2a; border-color: #1a3a2a; color: white; }
+
+  /* RESULT */
+  .result-page { max-width: 640px; margin: 0 auto; padding: 40px 24px 60px; }
+  .result-page h2 { font-family: 'Lora', serif; font-size: 1.6rem; color: #1a3a2a; margin-bottom: 6px; }
+  .result-page .sub { color: #666; font-size: 0.85rem; margin-bottom: 28px; }
+  .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+  .score-card { background: white; border-radius: 12px; padding: 18px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .score-card .val { font-family: 'Lora', serif; font-size: 2rem; font-weight: 700; color: #1a3a2a; }
+  .score-card .max { font-size: 0.78rem; color: #999; }
+  .score-card .lbl { font-size: 0.75rem; color: #666; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .total-score { background: #1a3a2a; color: #e8dfc8; border-radius: 14px; padding: 24px; text-align: center; margin-bottom: 20px; }
+  .total-score .val { font-family: 'Lora', serif; font-size: 3rem; font-weight: 700; }
+  .total-score .lbl { font-size: 0.82rem; opacity: 0.75; margin-top: 4px; }
+  .result-msg { background: #f0f7f4; border: 1px solid #b7e4c7; border-radius: 10px; padding: 16px; font-size: 0.85rem; color: #1a5235; line-height: 1.6; margin-bottom: 20px; }
+
+  /* ADMIN */
+  .admin-page { max-width: 920px; margin: 0 auto; padding: 32px 24px 60px; }
+  .admin-page h2 { font-family: 'Lora', serif; font-size: 1.5rem; color: #1a3a2a; margin-bottom: 6px; }
+  .admin-tabs { display: flex; gap: 2px; background: #e0dbd3; border-radius: 10px; padding: 3px; margin: 20px 0 24px; width: fit-content; }
+  .admin-tab { padding: 8px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; color: #666; }
+  .admin-tab.active { background: white; color: #1a3a2a; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .resp-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); font-size: 0.82rem; }
+  .resp-table th { background: #1a3a2a; color: #e8dfc8; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .resp-table td { padding: 10px 14px; border-bottom: 1px solid #f0ebe3; }
+  .resp-table tr:last-child td { border-bottom: none; }
+  .resp-table tr:hover td { background: #faf8f5; }
+  .badge-media { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+  .badge-digital { background: #dbeafe; color: #1e40af; }
+  .badge-cetak { background: #fef3c7; color: #92400e; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal { background: white; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; }
+  .modal h3 { font-family: 'Lora', serif; font-size: 1.2rem; margin-bottom: 8px; }
+  .modal p { color: #666; font-size: 0.85rem; margin-bottom: 20px; }
+  .modal input { width: 100%; padding: 10px 12px; border: 1.5px solid #d0c9be; border-radius: 8px; font-size: 0.92rem; margin-bottom: 12px; }
+  .error-msg { color: #c0392b; font-size: 0.8rem; margin-bottom: 12px; }
+  .detail-view { background: white; border-radius: 14px; padding: 24px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .detail-section { margin-bottom: 20px; }
+  .detail-section h4 { font-family: 'Lora', serif; color: #1a3a2a; margin-bottom: 10px; font-size: 0.95rem; }
+  .detail-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #e8e2da; font-size: 0.82rem; }
+  .detail-row:last-child { border-bottom: none; }
+  .editor-section { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .editor-note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px 16px; font-size: 0.82rem; color: #7a5c00; margin-bottom: 16px; }
+
+  @media (max-width: 600px) {
+    .media-cards { grid-template-columns: 1fr; }
+    .score-grid { grid-template-columns: 1fr; }
+    .reading-body { padding: 20px; }
+    .likert-scale { flex-direction: column; align-items: flex-start; }
+    .likert-options { justify-content: flex-start; }
+  }
+`;
+
+// ============================================================
+// MAIN APP
+// ============================================================
+export default function App() {
+  const [page, setPage] = useState("landing"); // landing | form | reading | print-info | quiz | scales | result | admin
+  const [mediaType, setMediaType] = useState(null); // digital | cetak
+  const [userData, setUserData] = useState({ nama: "", kelas: "", absen: "", gender: "" });
+  const [hasRead, setHasRead] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [scaleAnswers, setScaleAnswers] = useState({});
+  const [quizTimeLeft, setQuizTimeLeft] = useState(QUIZ_TIME_SECONDS);
+  const [quizStartTime, setQuizStartTime] = useState(null);
+  const [printCountdown, setPrintCountdown] = useState(null); // null = not started
+  const [printPhase, setPrintPhase] = useState("instruksi"); // instruksi | countdown | done
+  const [result, setResult] = useState(null);
+  const [adminAuth, setAdminAuth] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminError, setAdminError] = useState("");
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminTab, setAdminTab] = useState("data");
+  const [responses, setResponses] = useState([]);
+  const [selectedResp, setSelectedResp] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deletePass, setDeletePass] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [quizSection, setQuizSection] = useState("C"); // C | D | E | F | G
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+  const timerRef = useRef(null);
+  const printTimerRef = useRef(null);
+
+  // URL-based routing for sharing
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#admin") { setShowAdminModal(true); }
+  }, []);
+
+  // Quiz timer
+  useEffect(() => {
+    if (page === "quiz" && quizStartTime) {
+      timerRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - quizStartTime) / 1000);
+        const left = QUIZ_TIME_SECONDS - elapsed;
+        if (left <= 0) {
+          clearInterval(timerRef.current);
+          setQuizTimeLeft(0);
+          handleQuizDone();
+        } else {
+          setQuizTimeLeft(left);
+        }
+      }, 1000);
+      return () => clearInterval(timerRef.current);
+    }
+  }, [page, quizStartTime]);
+
+  function startQuiz() {
+    setQuizStartTime(Date.now());
+    setPage("quiz");
+    setQuizSection("C");
+  }
+
+  function handleReadingDone() {
+    clearInterval(timerRef.current);
+    startQuiz();
+  }
+
+  // Print countdown (3 minutes to put away the paper)
+  function startPrintCountdown() {
+    setPrintPhase("countdown");
+    let secs = 3 * 60;
+    setPrintCountdown(secs);
+    printTimerRef.current = setInterval(() => {
+      secs--;
+      setPrintCountdown(secs);
+      if (secs <= 0) {
+        clearInterval(printTimerRef.current);
+        setPrintPhase("done");
+      }
+    }, 1000);
+  }
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60).toString().padStart(2, "0");
+    const sec = (s % 60).toString().padStart(2, "0");
+    return `${m}:${sec}`;
+  }
+
+  function handleQuizDone() {
+    clearInterval(timerRef.current);
+    if (quizSection !== "G") {
+      // move to scales
+      setPage("scales");
+      setQuizSection("E");
+    }
+  }
+
+  async function handleSubmit() {
+    if (saving) return;
+    setSaving(true);
+    const score = calcScore(quizAnswers);
+    const resp = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      nama: userData.nama,
+      kelas: userData.kelas,
+      absen: userData.absen,
+      gender: userData.gender,
+      media: mediaType,
+      answers: { ...quizAnswers },
+      scales: { ...scaleAnswers },
+      score,
+      timeSpent: QUIZ_TIME_SECONDS - quizTimeLeft,
+    };
+    setResult(resp);
+    const ok = await saveResponse(resp);
+    setSaveMsg(ok ? "Data berhasil dikirim ke server penelitian." : "Gagal mengirim data. Coba lagi.");
+    setSaving(false);
+    setPage("result");
+  }
+
+  // Admin
+  async function loadAdminData() {
+    const data = await loadResponses();
+    setResponses(data);
+  }
+
+  function handleAdminLogin() {
+    if (adminPassword === ADMIN_PASSWORD) {
+      setAdminAuth(true);
+      setShowAdminModal(false);
+      setAdminError("");
+      setPage("admin");
+      loadAdminData();
+    } else {
+      setAdminError("Kata sandi salah.");
+    }
+  }
+
+  async function handleDelete() {
+    if (deletePass !== ADMIN_PASSWORD) { setDeleteError("Kata sandi salah."); return; }
+    await deleteResponse(deleteTarget.id);
+    setDeleteTarget(null);
+    setDeletePass("");
+    setDeleteError("");
+    if (selectedResp?.id === deleteTarget.id) setSelectedResp(null);
+    loadAdminData();
+  }
+
+  const allQuestionsSections = ["C", "D"];
+  const allScaleSections = ["E", "F", "G"];
+
+  function countAnswered() {
+    let total = 0;
+    if (page === "quiz") {
+      const allQ = [...QUESTIONS_C, ...QUESTIONS_D];
+      total = allQ.filter(q => {
+        const key = q.id <= 15 ? `C${q.id}` : `D${q.id}`;
+        return quizAnswers[key] !== undefined;
+      }).length;
+      return { answered: total, total: allQ.length };
+    }
+    return { answered: 0, total: 0 };
+  }
+
+  // ---- RENDER ----
+  return (
+    <>
+      <style>{css}</style>
+      <div className="app">
+        <div className="header">
+          <div>
+            <div className="header-title">Instrumen Penelitian ABBIS</div>
+            <div className="header-sub">Perbandingan Pemahaman Membaca — SMAN 5 Yogyakarta 2025/2026</div>
+          </div>
+          {mediaType && <div className="header-badge">{mediaType === "digital" ? "📱 DIGITAL" : "📄 CETAK"}</div>}
+        </div>
+
+        {/* LANDING */}
+        {page === "landing" && (
+          <div className="landing">
+            <div className="landing-icon">📖</div>
+            <h1>Penelitian Pemahaman Membaca</h1>
+            <p>Selamat datang! Kamu akan mengikuti penelitian tentang perbandingan pemahaman membaca antara media cetak dan digital. Pilih kelompokmu di bawah ini.</p>
+            <div className="media-cards">
+              <div className={`media-card ${mediaType === "digital" ? "selected" : ""}`} onClick={() => setMediaType("digital")}>
+                <div className="media-card-icon">💻</div>
+                <h3>Kelompok Digital</h3>
+                <p>Membaca teks langsung di layar, kemudian mengerjakan soal tanpa bisa kembali ke teks.</p>
+              </div>
+              <div className={`media-card ${mediaType === "cetak" ? "selected" : ""}`} onClick={() => setMediaType("cetak")}>
+                <div className="media-card-icon">📄</div>
+                <h3>Kelompok Cetak</h3>
+                <p>Membaca teks dari kertas yang sudah dicetak, kemudian ada waktu untuk menyingkirkan kertas sebelum mengerjakan soal.</p>
+              </div>
+            </div>
+            <button className="btn" disabled={!mediaType} onClick={() => setPage("form")}>Mulai →</button>
+            <span className="admin-link" onClick={() => setShowAdminModal(true)}>Panel Admin / Peneliti</span>
+          </div>
+        )}
+
+        {/* DATA DIRI */}
+        {page === "form" && (
+          <div className="form-page">
+            <h2>Bagian A — Data Diri</h2>
+            <p className="subtitle">Isi data diri dengan lengkap sebelum memulai.</p>
+            <div className="form-group">
+              <label>Nama Lengkap</label>
+              <input value={userData.nama} onChange={e => setUserData({ ...userData, nama: e.target.value })} placeholder="Nama lengkap..." />
+            </div>
+            <div className="form-group">
+              <label>Kelas</label>
+              <input value={userData.kelas} onChange={e => setUserData({ ...userData, kelas: e.target.value })} placeholder="Contoh: XII IPA 1" />
+            </div>
+            <div className="form-group">
+              <label>No. Absen</label>
+              <input value={userData.absen} onChange={e => setUserData({ ...userData, absen: e.target.value })} placeholder="Nomor absen" />
+            </div>
+            <div className="form-group">
+              <label>Jenis Kelamin</label>
+              <div className="radio-group">
+                <div className={`radio-btn ${userData.gender === "L" ? "active" : ""}`} onClick={() => setUserData({ ...userData, gender: "L" })}>
+                  <span>♂</span> Laki-laki
+                </div>
+                <div className={`radio-btn ${userData.gender === "P" ? "active" : ""}`} onClick={() => setUserData({ ...userData, gender: "P" })}>
+                  <span>♀</span> Perempuan
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+              <button className="btn btn-outline" onClick={() => setPage("landing")}>← Kembali</button>
+              <button className="btn" disabled={!userData.nama || !userData.kelas || !userData.absen || !userData.gender}
+                onClick={() => mediaType === "digital" ? setPage("reading") : setPage("print-info")}>
+                Lanjut →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* READING (DIGITAL) */}
+        {page === "reading" && (
+          <div className="reading-page">
+            <div className="reading-header">
+              <span className="reading-badge">📖 Bagian B — Teks Bacaan Digital</span>
+              <span style={{ fontSize: "0.8rem", color: "#888" }}>Baca sekali dengan saksama</span>
+            </div>
+            <div className="reading-note">
+              ⚠️ <strong>Perhatian:</strong> Baca teks ini satu kali dengan seksama. Setelah menekan "Selesai Membaca", kamu <strong>tidak dapat kembali</strong> ke teks ini dan langsung mengerjakan soal.
+            </div>
+            <h2 className="reading-title">{READING_TEXT.title}</h2>
+            <div className="reading-body">
+              {READING_TEXT.paragraphs.map((p, i) => (
+                <div key={i} className="para-wrapper">
+                  <span className="para-num">{i + 1}</span>
+                  <p className="para-text">{p}</p>
+                </div>
+              ))}
+              <p style={{ fontSize: "0.75rem", color: "#999", textAlign: "center", marginTop: 20 }}>
+                <em>Teks diadaptasi dan dikembangkan untuk keperluan instrumen penelitian. Panjang teks: ±900 kata.</em>
+              </p>
+            </div>
+            <button className="btn reading-done-btn" onClick={handleReadingDone}>
+              ✓ Selesai Membaca — Mulai Soal
+            </button>
+          </div>
+        )}
+
+        {/* PRINT INFO PAGE */}
+        {page === "print-info" && (
+          <div className="print-page">
+            {printPhase === "instruksi" && (
+              <>
+                <div className="icon">📄</div>
+                <h2>Kelompok Cetak</h2>
+                <p>Kamu sudah mencetak teks bacaan dari kertas yang diberikan peneliti. Bacalah teks tersebut <strong>satu kali</strong> dengan seksama.</p>
+                <p>Setelah selesai membaca, tekan tombol di bawah ini. Kamu akan diberikan waktu <strong>3 menit</strong> untuk menyingkirkan / meletakkan teks cetak jauh dari jangkauanmu, lalu soal akan dimulai.</p>
+                <p style={{ color: "#c0392b", fontWeight: 600 }}>Penting: Selama mengerjakan soal, kamu TIDAK boleh melihat teks cetak kembali.</p>
+                <button className="btn" onClick={startPrintCountdown}>✓ Saya Sudah Selesai Membaca</button>
+              </>
+            )}
+            {printPhase === "countdown" && (
+              <>
+                <div className="icon">⏱️</div>
+                <h2>Singkirkan Teks Cetakmu!</h2>
+                <p>Letakkan lembar bacaan di tempat yang <strong>tidak dapat kamu akses</strong> selama mengerjakan soal. Berikan ke pengawas, simpan di tas, atau letakkan di luar jangkauan.</p>
+                <div className="countdown-box">
+                  <div className="countdown-label">WAKTU TERSISA</div>
+                  {formatTime(printCountdown)}
+                </div>
+                <p style={{ color: "#888", fontSize: "0.8rem" }}>Soal akan otomatis dimulai saat hitungan mundur selesai.</p>
+                {printCountdown <= 0 && <button className="btn" onClick={startQuiz}>Mulai Soal Sekarang →</button>}
+              </>
+            )}
+            {printPhase === "done" && (
+              <>
+                <div className="icon">✅</div>
+                <h2>Siap!</h2>
+                <p>Waktunya mengerjakan soal. Pastikan teks cetak sudah disingkirkan.</p>
+                <button className="btn" onClick={startQuiz}>Mulai Soal →</button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* QUIZ */}
+        {page === "quiz" && (
+          <div className="quiz-page">
+            <div className={`quiz-timer ${quizTimeLeft < 300 ? "timer-urgent" : ""}`}>
+              <span>⏱</span>
+              <span>Waktu Mengerjakan: <strong>{formatTime(quizTimeLeft)}</strong></span>
+              <span style={{ marginLeft: "auto", fontSize: "0.78rem", opacity: 0.75 }}>
+                {countAnswered().answered}/{countAnswered().total} dijawab
+              </span>
+            </div>
+            <div className="quiz-progress">
+              <div className="quiz-progress-bar" style={{ width: `${(countAnswered().answered / countAnswered().total) * 100}%` }} />
+            </div>
+
+            {/* Section C */}
+            {quizSection === "C" && (
+              <>
+                {["C.1", "C.2", "C.3"].map(sec => {
+                  const secQ = QUESTIONS_C.filter(q => q.section === sec);
+                  return (
+                    <div key={sec}>
+                      <div className="section-header">{sec} — {secQ[0].label}</div>
+                      <div className="section-sub">Jawab tanpa membuka teks.</div>
+                      {secQ.map(q => (
+                        <div key={q.id} className="question-card">
+                          <div className="question-num">Soal {q.id}</div>
+                          <div className="question-text">{q.text}</div>
+                          <div className="options">
+                            {q.options.map((opt, oi) => (
+                              <div key={oi} className={`option ${quizAnswers[`C${q.id}`] === oi ? "selected" : ""}`}
+                                onClick={() => setQuizAnswers(prev => ({ ...prev, [`C${q.id}`]: oi }))}>
+                                <div className="option-letter">{String.fromCharCode(65 + oi)}</div>
+                                <span>{opt}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                  <button className="btn" onClick={() => setQuizSection("D")}>Lanjut Bagian D →</button>
+                </div>
+              </>
+            )}
+
+            {/* Section D */}
+            {quizSection === "D" && (
+              <>
+                <div className="section-header">Bagian D — Rekonstruksi Urutan & Memori Lokasi</div>
+                <div className="section-sub">Jawab tanpa membuka teks. Teks terdiri dari 9 paragraf bernomor urut.</div>
+                {QUESTIONS_D.map(q => (
+                  <div key={q.id} className="question-card">
+                    <div className="question-num">Soal {q.id}</div>
+                    <div className="question-text">{q.text}</div>
+                    <div className="options">
+                      {q.options.map((opt, oi) => (
+                        <div key={oi} className={`option ${quizAnswers[`D${q.id}`] === oi ? "selected" : ""}`}
+                          onClick={() => setQuizAnswers(prev => ({ ...prev, [`D${q.id}`]: oi }))}>
+                          <div className="option-letter">{String.fromCharCode(65 + oi)}</div>
+                          <span>{opt}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 16 }}>
+                  <button className="btn btn-outline" onClick={() => setQuizSection("C")}>← Kembali</button>
+                  <button className="btn" onClick={() => { clearInterval(timerRef.current); setPage("scales"); setQuizSection("E"); }}>Lanjut ke Skala →</button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* SCALES */}
+        {page === "scales" && (
+          <div className="quiz-page">
+            <div style={{ marginBottom: 24, background: "#f0f7f4", borderRadius: 10, padding: "12px 16px", fontSize: "0.82rem", color: "#1a5235" }}>
+              ✅ Soal selesai! Sekarang isi skala pengalaman membacamu. Tidak ada jawaban benar/salah.
+            </div>
+
+            {quizSection === "E" && (
+              <>
+                <div className="section-header">Bagian E — Skala Beban Kognitif</div>
+                <div className="section-sub">Berikan tanda pada kolom yang paling menggambarkan pengalamanmu selama membaca teks tadi. (1=Sangat Tidak Setuju, 5=Sangat Setuju)</div>
+                {SCALE_E.map(item => (
+                  <div key={item.id} className="likert-card">
+                    <div className="likert-text">{item.text} {item.reversed && <span style={{ color: "#888", fontSize: "0.75rem" }}>(R)</span>}</div>
+                    <div className="likert-scale">
+                      <div className="likert-label">STS</div>
+                      <div className="likert-options">
+                        {[1, 2, 3, 4, 5].map(v => (
+                          <button key={v} className={`likert-btn ${scaleAnswers[item.id] === v ? "selected" : ""}`}
+                            onClick={() => setScaleAnswers(prev => ({ ...prev, [item.id]: v }))}>{v}</button>
+                        ))}
+                      </div>
+                      <div className="likert-label">SS</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                  <button className="btn" onClick={() => setQuizSection("F")}>Lanjut →</button>
+                </div>
+              </>
+            )}
+
+            {quizSection === "F" && (
+              <>
+                <div className="section-header">Bagian F — Skala Memori Spasial & Stabilitas Teks</div>
+                <div className="section-sub">Berikan tanda setelah selesai membaca. (1=Sangat Tidak Setuju, 5=Sangat Setuju)</div>
+                {SCALE_F.map(item => (
+                  <div key={item.id} className="likert-card">
+                    <div className="likert-text">{item.text} {item.reversed && <span style={{ color: "#888", fontSize: "0.75rem" }}>(R)</span>}</div>
+                    <div className="likert-scale">
+                      <div className="likert-label">STS</div>
+                      <div className="likert-options">
+                        {[1, 2, 3, 4, 5].map(v => (
+                          <button key={v} className={`likert-btn ${scaleAnswers[item.id] === v ? "selected" : ""}`}
+                            onClick={() => setScaleAnswers(prev => ({ ...prev, [item.id]: v }))}>{v}</button>
+                        ))}
+                      </div>
+                      <div className="likert-label">SS</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 16 }}>
+                  <button className="btn btn-outline" onClick={() => setQuizSection("E")}>← Kembali</button>
+                  <button className="btn" onClick={() => setQuizSection("G")}>Lanjut →</button>
+                </div>
+              </>
+            )}
+
+            {quizSection === "G" && (
+              <>
+                <div className="section-header">Bagian G — Skala Pengalaman Membaca Umum</div>
+                <div className="section-sub">Berikan tanda berdasarkan pengalaman keseluruhanmu. (1=Sangat Tidak Setuju, 5=Sangat Setuju)</div>
+                {SCALE_G.map(item => (
+                  <div key={item.id} className="likert-card">
+                    <div className="likert-text">{item.text}</div>
+                    <div className="likert-scale">
+                      <div className="likert-label">STS</div>
+                      <div className="likert-options">
+                        {[1, 2, 3, 4, 5].map(v => (
+                          <button key={v} className={`likert-btn ${scaleAnswers[item.id] === v ? "selected" : ""}`}
+                            onClick={() => setScaleAnswers(prev => ({ ...prev, [item.id]: v }))}>{v}</button>
+                        ))}
+                      </div>
+                      <div className="likert-label">SS</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 16 }}>
+                  <button className="btn btn-outline" onClick={() => setQuizSection("F")}>← Kembali</button>
+                  <button className="btn" disabled={saving} onClick={handleSubmit}>
+                    {saving ? "Mengirim..." : "✓ Kirim Jawaban"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* RESULT */}
+        {page === "result" && result && (
+          <div className="result-page">
+            <h2>🎉 Terima Kasih!</h2>
+            <p className="sub">Jawabanmu telah berhasil dikirim ke server penelitian.</p>
+            <div className="result-msg">{saveMsg}</div>
+            <div className="total-score">
+              <div className="val">{result.score.totalC + result.score.d}</div>
+              <div className="lbl">Total Skor (C + D) dari 23</div>
+            </div>
+            <div className="score-grid">
+              <div className="score-card">
+                <div className="val">{result.score.c1}</div>
+                <div className="max">/ 5</div>
+                <div className="lbl">C.1 Surface Code</div>
+              </div>
+              <div className="score-card">
+                <div className="val">{result.score.c2}</div>
+                <div className="max">/ 5</div>
+                <div className="lbl">C.2 Textbase</div>
+              </div>
+              <div className="score-card">
+                <div className="val">{result.score.c3}</div>
+                <div className="max">/ 5</div>
+                <div className="lbl">C.3 Situation Model</div>
+              </div>
+              <div className="score-card">
+                <div className="val">{result.score.d}</div>
+                <div className="max">/ 8</div>
+                <div className="lbl">D — Memori Lokasi</div>
+              </div>
+            </div>
+            <p style={{ color: "#888", fontSize: "0.8rem", textAlign: "center", marginTop: 8 }}>
+              Data lengkap termasuk skala E, F, G telah tersimpan dan hanya dapat diakses oleh peneliti.
+            </p>
+          </div>
+        )}
+
+        {/* ADMIN PAGE */}
+        {page === "admin" && adminAuth && (
+          <div className="admin-page">
+            <h2>Panel Admin — Peneliti</h2>
+            <p style={{ color: "#888", fontSize: "0.82rem", marginBottom: 8 }}>Data responden tersimpan di server bersama. Hanya dapat diakses dengan kata sandi.</p>
+            <div className="admin-tabs">
+              <div className={`admin-tab ${adminTab === "data" ? "active" : ""}`} onClick={() => { setAdminTab("data"); loadAdminData(); }}>📊 Data Responden</div>
+              <div className={`admin-tab ${adminTab === "stats" ? "active" : ""}`} onClick={() => { setAdminTab("stats"); loadAdminData(); }}>📈 Statistik</div>
+              <div className={`admin-tab ${adminTab === "editor" ? "active" : ""}`} onClick={() => setAdminTab("editor")}>✏️ Info Instrumen</div>
+            </div>
+
+            {adminTab === "data" && (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span style={{ fontSize: "0.85rem", color: "#666" }}>{responses.length} responden terdaftar</span>
+                  <button className="btn btn-sm btn-outline" onClick={loadAdminData}>↻ Refresh</button>
+                </div>
+                {responses.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: 40, color: "#888" }}>Belum ada data responden.</div>
+                ) : (
+                  <table className="resp-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Nama</th>
+                        <th>Kelas/Absen</th>
+                        <th>Media</th>
+                        <th>Skor C</th>
+                        <th>Skor D</th>
+                        <th>Total</th>
+                        <th>Waktu</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {responses.map((r, i) => (
+                        <tr key={r.id}>
+                          <td style={{ color: "#999" }}>{i + 1}</td>
+                          <td style={{ fontWeight: 600 }}>{r.nama}</td>
+                          <td>{r.kelas} / {r.absen}</td>
+                          <td><span className={`badge-media ${r.media === "digital" ? "badge-digital" : "badge-cetak"}`}>{r.media === "digital" ? "Digital" : "Cetak"}</span></td>
+                          <td>{r.score?.totalC ?? "-"}/15</td>
+                          <td>{r.score?.d ?? "-"}/8</td>
+                          <td style={{ fontWeight: 700 }}>{(r.score?.totalC ?? 0) + (r.score?.d ?? 0)}/23</td>
+                          <td>{r.timeSpent ? Math.floor(r.timeSpent / 60) + "m" : "-"}</td>
+                          <td>
+                            <div style={{ display: "flex", gap: 4 }}>
+                              <button className="btn btn-sm btn-outline" onClick={() => setSelectedResp(selectedResp?.id === r.id ? null : r)}>Detail</button>
+                              <button className="btn btn-sm btn-danger" onClick={() => { setDeleteTarget(r); setDeletePass(""); setDeleteError(""); }}>Hapus</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {selectedResp && (
+                  <div className="detail-view">
+                    <h3 style={{ fontFamily: "Lora, serif", marginBottom: 16 }}>Detail: {selectedResp.nama}</h3>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                      <div className="detail-section">
+                        <h4>Data Diri</h4>
+                        <div className="detail-row"><span>Nama</span><span>{selectedResp.nama}</span></div>
+                        <div className="detail-row"><span>Kelas</span><span>{selectedResp.kelas}</span></div>
+                        <div className="detail-row"><span>No. Absen</span><span>{selectedResp.absen}</span></div>
+                        <div className="detail-row"><span>Gender</span><span>{selectedResp.gender === "L" ? "Laki-laki" : "Perempuan"}</span></div>
+                        <div className="detail-row"><span>Media</span><span>{selectedResp.media}</span></div>
+                        <div className="detail-row"><span>Waktu Kerja</span><span>{selectedResp.timeSpent ? Math.floor(selectedResp.timeSpent / 60) + " menit " + (selectedResp.timeSpent % 60) + " detik" : "-"}</span></div>
+                        <div className="detail-row"><span>Timestamp</span><span style={{ fontSize: "0.75rem" }}>{new Date(selectedResp.timestamp).toLocaleString("id-ID")}</span></div>
+                      </div>
+                      <div className="detail-section">
+                        <h4>Skor Objektif</h4>
+                        <div className="detail-row"><span>C.1 Surface Code</span><span>{selectedResp.score?.c1}/5</span></div>
+                        <div className="detail-row"><span>C.2 Textbase</span><span>{selectedResp.score?.c2}/5</span></div>
+                        <div className="detail-row"><span>C.3 Situation Model</span><span>{selectedResp.score?.c3}/5</span></div>
+                        <div className="detail-row"><span>Total C</span><span style={{ fontWeight: 700 }}>{selectedResp.score?.totalC}/15</span></div>
+                        <div className="detail-row"><span>D — Memori Lokasi</span><span style={{ fontWeight: 700 }}>{selectedResp.score?.d}/8</span></div>
+                        <div className="detail-row"><span><strong>Total C+D</strong></span><span style={{ fontWeight: 700, color: "#1a3a2a" }}>{(selectedResp.score?.totalC ?? 0) + (selectedResp.score?.d ?? 0)}/23</span></div>
+                      </div>
+                    </div>
+                    <div className="detail-section" style={{ marginTop: 16 }}>
+                      <h4>Skala Likert (E — Beban Kognitif)</h4>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {SCALE_E.map(item => (
+                          <div key={item.id} style={{ background: "#f0f7f4", borderRadius: 6, padding: "4px 10px", fontSize: "0.75rem" }}>
+                            <strong>{item.id}:</strong> {selectedResp.scales?.[item.id] ?? "-"}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="detail-section">
+                      <h4>Skala Likert (F — Memori Spasial)</h4>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {SCALE_F.map(item => (
+                          <div key={item.id} style={{ background: "#f0f7f4", borderRadius: 6, padding: "4px 10px", fontSize: "0.75rem" }}>
+                            <strong>{item.id}:</strong> {selectedResp.scales?.[item.id] ?? "-"}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="detail-section">
+                      <h4>Skala Likert (G — Pengalaman Umum)</h4>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {SCALE_G.map(item => (
+                          <div key={item.id} style={{ background: "#f0f7f4", borderRadius: 6, padding: "4px 10px", fontSize: "0.75rem" }}>
+                            <strong>{item.id}:</strong> {selectedResp.scales?.[item.id] ?? "-"}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {adminTab === "stats" && (
+              <div>
+                {responses.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: 40, color: "#888" }}>Belum ada data untuk ditampilkan.</div>
+                ) : (
+                  <>
+                    {["digital", "cetak"].map(media => {
+                      const group = responses.filter(r => r.media === media);
+                      if (!group.length) return null;
+                      const avgC = (group.reduce((s, r) => s + (r.score?.totalC ?? 0), 0) / group.length).toFixed(2);
+                      const avgD = (group.reduce((s, r) => s + (r.score?.d ?? 0), 0) / group.length).toFixed(2);
+                      const avgTotal = (group.reduce((s, r) => s + ((r.score?.totalC ?? 0) + (r.score?.d ?? 0)), 0) / group.length).toFixed(2);
+                      return (
+                        <div key={media} style={{ background: "white", borderRadius: 14, padding: 24, marginBottom: 16, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
+                          <h3 style={{ fontFamily: "Lora, serif", marginBottom: 16, color: "#1a3a2a" }}>
+                            {media === "digital" ? "💻 Kelompok Digital" : "📄 Kelompok Cetak"} — {group.length} responden
+                          </h3>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
+                            <div className="score-card"><div className="val">{avgC}</div><div className="lbl">Rata-rata C (max 15)</div></div>
+                            <div className="score-card"><div className="val">{avgD}</div><div className="lbl">Rata-rata D (max 8)</div></div>
+                            <div className="score-card"><div className="val">{avgTotal}</div><div className="lbl">Rata-rata Total (max 23)</div></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div style={{ background: "#1a3a2a", color: "#e8dfc8", borderRadius: 14, padding: 20, marginTop: 16 }}>
+                      <div style={{ fontFamily: "Lora, serif", marginBottom: 12, fontSize: "1.05rem" }}>Ringkasan Keseluruhan</div>
+                      <div className="detail-row" style={{ color: "#e8dfc8", borderColor: "#2d6a4f" }}>
+                        <span>Total Responden</span><span>{responses.length}</span>
+                      </div>
+                      <div className="detail-row" style={{ color: "#e8dfc8", borderColor: "#2d6a4f" }}>
+                        <span>Kelompok Digital</span><span>{responses.filter(r => r.media === "digital").length}</span>
+                      </div>
+                      <div className="detail-row" style={{ color: "#e8dfc8", borderColor: "#2d6a4f" }}>
+                        <span>Kelompok Cetak</span><span>{responses.filter(r => r.media === "cetak").length}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {adminTab === "editor" && (
+              <div className="editor-section">
+                <div className="editor-note">
+                  ℹ️ Halaman ini menampilkan informasi instrumen. Untuk memodifikasi teks atau soal, diperlukan akses ke kode sumber aplikasi. Hubungi pengembang untuk perubahan mendalam.
+                </div>
+                <h4 style={{ fontFamily: "Lora, serif", marginBottom: 12 }}>Struktur Instrumen</h4>
+                <div className="detail-row"><span>Bagian A</span><span>Data Diri Responden</span></div>
+                <div className="detail-row"><span>Bagian B</span><span>Teks Bacaan (~900 kata, 9 paragraf)</span></div>
+                <div className="detail-row"><span>Bagian C.1</span><span>5 Soal — Surface Code (Pemahaman Harfiah)</span></div>
+                <div className="detail-row"><span>Bagian C.2</span><span>5 Soal — Textbase (Ide Pokok)</span></div>
+                <div className="detail-row"><span>Bagian C.3</span><span>5 Soal — Situation Model (Inferensial)</span></div>
+                <div className="detail-row"><span>Bagian D</span><span>8 Soal — Rekonstruksi Urutan & Memori Lokasi</span></div>
+                <div className="detail-row"><span>Bagian E</span><span>10 Item Likert — Skala Beban Kognitif</span></div>
+                <div className="detail-row"><span>Bagian F</span><span>8 Item Likert — Memori Spasial & Stabilitas</span></div>
+                <div className="detail-row"><span>Bagian G</span><span>6 Item Likert — Pengalaman Membaca Umum</span></div>
+                <div className="detail-row"><span>Waktu Pengerjaan Soal</span><span>30 menit</span></div>
+                <div className="detail-row"><span>Waktu Singkirkan Teks (Cetak)</span><span>3 menit</span></div>
+                <div style={{ marginTop: 24 }}>
+                  <h4 style={{ fontFamily: "Lora, serif", marginBottom: 12 }}>Link untuk Dibagikan</h4>
+                  <div style={{ background: "#f0ebe3", borderRadius: 8, padding: 12, fontFamily: "monospace", fontSize: "0.82rem", wordBreak: "break-all" }}>
+                    {window.location.href.split("#")[0]}
+                  </div>
+                  <p style={{ fontSize: "0.78rem", color: "#888", marginTop: 8 }}>Bagikan link di atas kepada responden. Untuk akses admin, tambahkan <code>#admin</code> di akhir URL.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ADMIN LOGIN MODAL */}
+        {showAdminModal && (
+          <div className="modal-overlay" onClick={() => setShowAdminModal(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <h3>🔐 Akses Admin</h3>
+              <p>Masukkan kata sandi untuk mengakses panel peneliti.</p>
+              <input
+                type="password"
+                placeholder="Kata sandi admin..."
+                value={adminPassword}
+                onChange={e => setAdminPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAdminLogin()}
+              />
+              {adminError && <div className="error-msg">⚠️ {adminError}</div>}
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => { setShowAdminModal(false); setAdminError(""); }}>Batal</button>
+                <button className="btn" style={{ flex: 1 }} onClick={handleAdminLogin}>Masuk</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DELETE MODAL */}
+        {deleteTarget && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>🗑️ Hapus Responden</h3>
+              <p>Kamu akan menghapus data <strong>{deleteTarget.nama}</strong>. Tindakan ini tidak dapat dibatalkan. Masukkan kata sandi admin untuk konfirmasi.</p>
+              <input
+                type="password"
+                placeholder="Kata sandi admin..."
+                value={deletePass}
+                onChange={e => setDeletePass(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleDelete()}
+              />
+              {deleteError && <div className="error-msg">⚠️ {deleteError}</div>}
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => { setDeleteTarget(null); setDeleteError(""); }}>Batal</button>
+                <button className="btn btn-danger" style={{ flex: 1 }} onClick={handleDelete}>Hapus</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
